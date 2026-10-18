@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manifest — See disruption before it ships</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0B1220;
+    --panel:#131D2E;
+    --panel-2:#182437;
+    --line:#28374d;
+    --fog:#93A2B8;
+    --paper-text:#E9EDF4;
+    --amber:#FF9E2C;
+    --amber-dim:#B8721E;
+    --cyan:#4FD1C5;
+    --blueprint:#EEF1EA;
+    --blueprint-line:#c9d2c2;
+    --blueprint-ink:#1B2A20;
+    --radius:2px;
+    --disp: 'Oswald', sans-serif;
+    --body: 'IBM Plex Sans', sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--ink);
+    color:var(--paper-text);
+    font-family:var(--body);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  img{max-width:100%; display:block;}
+  a{color:inherit; text-decoration:none;}
+  .wrap{max-width:1180px; margin:0 auto; padding:0 32px;}
+  ::selection{background:var(--amber); color:var(--ink);}
+  :focus-visible{outline:2px solid var(--cyan); outline-offset:3px;}
+
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--cyan);
+    display:flex; align-items:center; gap:10px;
+  }
+  .eyebrow::before{content:''; width:16px; height:1px; background:var(--cyan);}
+
+  h1,h2,h3{
+    font-family:var(--disp);
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:.01em;
+    line-height:1.05;
+  }
+
+  /* ---------- NAV ---------- */
+  header.nav{
+    position:sticky; top:0; z-index:50;
+    background:rgba(11,18,32,.86);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-inner{
+    display:flex; align-items:center; justify-content:space-between;
+    height:72px;
+  }
+  .logo{
+    display:flex; align-items:center; gap:10px;
+    font-family:var(--disp); font-size:20px; letter-spacing:.04em; text-transform:uppercase;
+  }
+  .logo .mark{
+    width:11px; height:11px; background:var(--amber);
+    clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);
+  }
+  nav.links{display:flex; gap:36px;}
+  nav.links a{
+    font-family:var(--mono); font-size:13px; letter-spacing:.05em;
+    text-transform:uppercase; color:var(--fog);
+    transition:color .15s;
+  }
+  nav.links a:hover{color:var(--paper-text);}
+  .btn{
+    font-family:var(--mono); font-size:13px; letter-spacing:.05em; text-transform:uppercase;
+    padding:11px 20px; border-radius:var(--radius);
+    display:inline-block; cursor:pointer; border:1px solid transparent;
+    transition:transform .15s, background .15s, border-color .15s;
+  }
+  .btn-amber{background:var(--amber); color:#1a1103; font-weight:600;}
+  .btn-amber:hover{transform:translateY(-1px); background:#ffb04d;}
+  .btn-ghost{border-color:var(--line); color:var(--paper-text);}
+  .btn-ghost:hover{border-color:var(--cyan); color:var(--cyan);}
+  .nav-cta{display:flex; align-items:center; gap:14px;}
+  .nav-links-mobile{display:none;}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    padding:88px 0 60px;
+    position:relative;
+    overflow:hidden;
+    border-bottom:1px solid var(--line);
+  }
+  .hero::before{
+    content:'';
+    position:absolute; inset:0;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:64px 64px;
+    opacity:.18;
+    mask-image:radial-gradient(ellipse at 30% 20%, black, transparent 70%);
+  }
+  .hero-inner{position:relative; z-index:2; display:grid; grid-template-columns:1.05fr .95fr; gap:56px; align-items:start;}
+  .hero h1{font-size:56px; margin:18px 0 22px; max-width:640px;}
+  .hero h1 .hl{color:var(--amber);}
+  .hero p.sub{
+    font-size:18px; color:var(--fog); max-width:520px; margin-bottom:32px;
+  }
+  .hero-ctas{display:flex; gap:14px; margin-bottom:36px;}
+  .hero-note{
+    font-family:var(--mono); font-size:12px; color:var(--fog); letter-spacing:.03em;
+  }
+
+  /* ---- flip board signature ---- */
+  .board{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    overflow:hidden;
+  }
+  .board-head{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:14px 18px; border-bottom:1px solid var(--line);
+    background:var(--panel-2);
+  }
+  .board-head .title{font-family:var(--mono); font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--fog);}
+  .board-head .live{
+    display:flex; align-items:center; gap:8px;
+    font-family:var(--mono); font-size:11px; color:var(--cyan); letter-spacing:.08em;
+  }
+  .dot{width:6px; height:6px; border-radius:50%; background:var(--cyan); animation:pulse 1.8s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;} 50%{opacity:.25;}}
+
+  .board-row{
+    display:grid; grid-template-columns:96px 1fr 92px 88px;
+    gap:12px; align-items:center;
+    padding:13px 18px;
+    border-bottom:1px solid var(--line);
+    font-family:var(--mono); font-size:12.5px;
+    opacity:0; transform:translateY(6px);
+    animation:rowin .5s forwards;
+  }
+  .board-row:last-child{border-bottom:none;}
+  @keyframes rowin{to{opacity:1; transform:translateY(0);}}
+  .board-row .id{color:var(--fog);}
+  .board-row .route{color:var(--paper-text);}
+  .board-row .eta{color:var(--fog); text-align:right;}
+  .status{
+    font-size:10.5px; letter-spacing:.06em; text-transform:uppercase;
+    padding:4px 8px; border-radius:2px; text-align:center; font-weight:600;
+  }
+  .status.ok{background:rgba(79,209,197,.12); color:var(--cyan);}
+  .status.risk{background:rgba(255,158,44,.14); color:var(--amber);}
+  .status.late{background:rgba(255,90,90,.14); color:#FF6B6B;}
+  .board-foot{
+    padding:12px 18px; font-family:var(--mono); font-size:11px; color:var(--fog);
+    display:flex; justify-content:space-between;
+  }
+
+  /* ---------- LOGO STRIP ---------- */
+  .strip{
+    border-bottom:1px solid var(--line);
+    padding:26px 0;
+  }
+  .strip .wrap{
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:20px;
+  }
+  .strip .label{font-family:var(--mono); font-size:11px; color:var(--fog); letter-spacing:.1em; text-transform:uppercase;}
+  .strip .logos{display:flex; gap:40px; flex-wrap:wrap;}
+  .strip .logos span{
+    font-family:var(--disp); font-size:15px; letter-spacing:.05em; text-transform:uppercase; color:var(--fog); opacity:.7;
+  }
+
+  /* ---------- METRICS ---------- */
+  .metrics{padding:80px 0; border-bottom:1px solid var(--line);}
+  .metrics-head{max-width:600px; margin-bottom:46px;}
+  .metrics-head h2{font-size:34px; margin-top:14px;}
+  .metrics-head p{color:var(--fog); margin-top:14px; font-size:16px;}
+  .gauges{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line);}
+  .gauge{background:var(--ink); padding:28px 24px;}
+  .gauge .num{font-family:var(--disp); font-size:42px; color:var(--amber);}
+  .gauge .num .unit{font-size:20px; color:var(--fog);}
+  .gauge .cap{font-family:var(--mono); font-size:12px; color:var(--fog); margin-top:8px; letter-spacing:.02em;}
+
+  /* ---------- FEATURES (blueprint section) ---------- */
+  .features{
+    background:var(--blueprint);
+    color:var(--blueprint-ink);
+    padding:88px 0;
+    position:relative;
+  }
+  .features::before{
+    content:'';
+    position:absolute; inset:0;
+    background-image: radial-gradient(circle, var(--blueprint-line) 1px, transparent 1px);
+    background-size:22px 22px;
+    opacity:.9;
+  }
+  .features .wrap{position:relative; z-index:2;}
+  .features .eyebrow{color:#3d6b52;}
+  .features .eyebrow::before{background:#3d6b52;}
+  .features h2{font-size:34px; color:var(--blueprint-ink); margin:14px 0 46px; max-width:640px;}
+  .grid-features{display:grid; grid-template-columns:repeat(3,1fr); gap:22px;}
+  .fcard{
+    background:#fff; border:1px solid var(--blueprint-line);
+    padding:26px 24px 24px;
+    transition:transform .18s, box-shadow .18s;
+  }
+  .fcard:hover{transform:translateY(-4px); box-shadow:0 14px 30px rgba(27,42,32,.12);}
+  .fcard .ficon{
+    width:38px; height:38px; border-radius:50%;
+    border:1.5px solid var(--blueprint-ink);
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--mono); font-size:13px; margin-bottom:18px;
+  }
+  .fcard h3{font-size:17px; text-transform:none; letter-spacing:0; margin-bottom:10px; font-family:var(--body); font-weight:700;}
+  .fcard p{font-size:14.5px; color:#43533f; line-height:1.55;}
+  .fcard .tag{
+    display:inline-block; margin-top:14px; font-family:var(--mono); font-size:10.5px;
+    letter-spacing:.08em; text-transform:uppercase; color:#3d6b52;
+  }
+
+  /* ---------- PROCESS ---------- */
+  .process{padding:90px 0; border-bottom:1px solid var(--line);}
+  .process-head{max-width:560px; margin-bottom:52px;}
+  .process-head h2{font-size:34px; margin-top:14px;}
+  .steps{display:grid; grid-template-columns:repeat(4,1fr); gap:0; position:relative;}
+  .steps::before{
+    content:''; position:absolute; top:19px; left:4%; right:4%; height:1px;
+    background:repeating-linear-gradient(90deg, var(--line) 0 8px, transparent 8px 16px);
+  }
+  .step{padding-right:28px; position:relative;}
+  .step .snum{
+    width:40px; height:40px; border-radius:50%; background:var(--panel);
+    border:1px solid var(--cyan); color:var(--cyan);
+    font-family:var(--mono); font-size:13px;
+    display:flex; align-items:center; justify-content:center;
+    margin-bottom:22px; position:relative; z-index:2;
+  }
+  .step h3{font-size:18px; margin-bottom:10px; letter-spacing:.02em;}
+  .step p{color:var(--fog); font-size:14.5px;}
+
+  /* ---------- QUOTE ---------- */
+  .quote{
+    padding:90px 0; border-bottom:1px solid var(--line);
+    background:var(--panel);
+  }
+  .quote blockquote{
+    font-family:var(--disp); font-weight:500; text-transform:none;
+    font-size:30px; max-width:820px; line-height:1.3; letter-spacing:0;
+  }
+  .quote blockquote span{color:var(--amber);}
+  .quote-attr{
+    margin-top:26px; display:flex; align-items:center; gap:14px;
+    font-family:var(--mono); font-size:13px; color:var(--fog);
+  }
+  .quote-attr .who{color:var(--paper-text);}
+
+  /* ---------- PRICING ---------- */
+  .pricing{padding:90px 0; border-bottom:1px solid var(--line);}
+  .pricing-head{max-width:560px; margin-bottom:50px;}
+  .pricing-head h2{font-size:34px; margin-top:14px;}
+  .plans{display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); border:1px solid var(--line);}
+  .plan{background:var(--ink); padding:34px 28px; display:flex; flex-direction:column;}
+  .plan.feat{background:var(--panel);}
+  .plan .pname{font-family:var(--mono); font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--cyan);}
+  .plan .price{font-family:var(--disp); font-size:40px; margin:16px 0 6px;}
+  .plan .price small{font-family:var(--mono); font-size:13px; color:var(--fog); text-transform:none;}
+  .plan .pdesc{color:var(--fog); font-size:14px; margin-bottom:24px;}
+  .plan ul{list-style:none; margin-bottom:28px; flex:1;}
+  .plan li{
+    font-size:13.5px; color:var(--paper-text); padding:9px 0;
+    border-top:1px solid var(--line); display:flex; gap:10px;
+  }
+  .plan li:first-child{border-top:none;}
+  .plan li::before{content:'—'; color:var(--fog);}
+
+  /* ---------- CTA BANNER ---------- */
+  .cta-band{
+    padding:80px 0; text-align:center; position:relative; overflow:hidden;
+    border-bottom:1px solid var(--line);
+  }
+  .cta-band::before{
+    content:''; position:absolute; inset:0;
+    background:radial-gradient(ellipse at 50% 0%, rgba(255,158,44,.13), transparent 60%);
+  }
+  .cta-band h2{font-size:38px; max-width:640px; margin:0 auto 26px; position:relative;}
+  .cta-band .btn{position:relative;}
+
+  /* ---------- FOOTER ---------- */
+  footer{padding:56px 0 40px;}
+  .foot-grid{display:grid; grid-template-columns:1.4fr repeat(3,1fr); gap:40px; margin-bottom:48px;}
+  .foot-brand p{color:var(--fog); font-size:13.5px; margin-top:14px; max-width:280px;}
+  .foot-col h4{font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--fog); margin-bottom:16px;}
+  .foot-col a{display:block; font-size:13.5px; color:var(--paper-text); padding:6px 0; opacity:.85;}
+  .foot-col a:hover{color:var(--cyan);}
+  .foot-bottom{
+    border-top:1px solid var(--line); padding-top:24px;
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px;
+    font-family:var(--mono); font-size:11.5px; color:var(--fog);
+  }
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width:920px){
+    nav.links{display:none;}
+    .hero-inner{grid-template-columns:1fr;}
+    .gauges{grid-template-columns:repeat(2,1fr);}
+    .grid-features{grid-template-columns:1fr 1fr;}
+    .steps{grid-template-columns:1fr 1fr; row-gap:36px;}
+    .steps::before{display:none;}
+    .plans{grid-template-columns:1fr;}
+    .foot-grid{grid-template-columns:1fr 1fr;}
+  }
+  @media (max-width:600px){
+    .wrap{padding:0 20px;}
+    .hero h1{font-size:38px;}
+    .board-row{grid-template-columns:70px 1fr 70px; }
+    .board-row .eta{display:none;}
+    .gauges{grid-template-columns:1fr;}
+    .grid-features{grid-template-columns:1fr;}
+    .steps{grid-template-columns:1fr;}
+    .foot-grid{grid-template-columns:1fr;}
+    .quote blockquote{font-size:22px;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important;}
+    html{scroll-behavior:auto;}
+  }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap nav-inner">
+    <div class="logo"><span class="mark"></span>Manifest</div>
+    <nav class="links">
+      <a href="#platform">Platform</a>
+      <a href="#process">How it works</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#">Docs</a>
+    </nav>
+    <div class="nav-cta">
+      <a href="#" class="btn btn-ghost">Sign in</a>
+      <a href="#" class="btn btn-amber">Book a demo</a>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-inner">
+    <div>
+      <div class="eyebrow">Supply chain intelligence</div>
+      <h1>See disruption <span class="hl">before</span> it ships.</h1>
+      <p class="sub">Manifest reads your POs, carrier feeds, supplier signals, and inventory positions in real time — then tells you exactly what's about to break, and what to do about it.</p>
+      <div class="hero-ctas">
+        <a href="#" class="btn btn-amber">Book a demo</a>
+        <a href="#platform" class="btn btn-ghost">See the platform ↓</a>
+      </div>
+      <div class="hero-note">No credit card required · Live in 3 weeks · SOC 2 Type II</div>
+    </div>
+
+    <div class="board" id="board" aria-label="Live shipment status board">
+      <div class="board-head">
+        <span class="title">Control Tower / Live Feed</span>
+        <span class="live"><span class="dot"></span>Streaming</span>
+      </div>
+      <div id="board-rows"></div>
+      <div class="board-foot">
+        <span>247 active shipments</span>
+        <span>Updated 4s ago</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="strip">
+  <div class="wrap">
+    <span class="label">Trusted by supply chain teams at</span>
+    <div class="logos">
+      <span>Norrline</span>
+      <span>Kestrel Foods</span>
+      <span>Baltic Freightworks</span>
+      <span>Arden Components</span>
+      <span>Halcyon Retail</span>
+    </div>
+  </div>
+</div>
+
+<section class="metrics" id="platform">
+  <div class="wrap">
+    <div class="metrics-head">
+      <div class="eyebrow">Why teams switch</div>
+      <h2>Your supply chain already tells you when something's wrong. Most teams just find out too late.</h2>
+      <p>Manifest connects to the systems you already run — ERP, TMS, WMS, EDI, supplier portals — and turns scattered signals into one ranked list of what needs your attention today.</p>
+    </div>
+    <div class="gauges">
+      <div class="gauge"><div class="num">11<span class="unit">days</span></div><div class="cap">Earlier disruption warning vs. manual tracking</div></div>
+      <div class="gauge"><div class="num">34<span class="unit">%</span></div><div class="cap">Reduction in expedite freight spend</div></div>
+      <div class="gauge"><div class="num">4.2<span class="unit">hrs</span></div><div class="cap">Saved per planner, per week</div></div>
+      <div class="gauge"><div class="num">98.6<span class="unit">%</span></div><div class="cap">Forecast accuracy at SKU level</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="features">
+  <div class="wrap">
+    <div class="eyebrow">The platform</div>
+    <h2>Six control panels. One command view of your entire chain.</h2>
+    <div class="grid-features">
+
+      <div class="fcard">
+        <div class="ficon">RD</div>
+        <h3>Risk Radar</h3>
+        <p>Cross-references weather, port congestion, carrier delays, and supplier financial health to flag at-risk POs before they slip.</p>
+        <span class="tag">Predictive</span>
+      </div>
+
+      <div class="fcard">
+        <div class="ficon">DF</div>
+        <h3>Demand Forecasting</h3>
+        <p>SKU-level forecasts that learn from promotions, seasonality, and market signals — not just last year's numbers.</p>
+        <span class="tag">Forecasting</span>
+      </div>
+
+      <div class="fcard">
+        <div class="ficon">IA</div>
+        <h3>Inventory Autopilot</h3>
+        <p>Recommends reorder points and safety stock per location, and can auto-place routine replenishment orders within limits you set.</p>
+        <span class="tag">Automation</span>
+      </div>
+
+      <div class="fcard">
+        <div class="ficon">SC</div>
+        <h3>Supplier Scorecards</h3>
+        <p>Live on-time-in-full, quality, and lead-time reliability per supplier — so renewal conversations run on data, not memory.</p>
+        <span class="tag">Sourcing</span>
+      </div>
+
+      <div class="fcard">
+        <div class="ficon">CT</div>
+        <h3>Control Tower Chat</h3>
+        <p>Ask "which POs miss their ship date if the Yantian delay holds?" in plain language and get an answer with sources, not a dashboard to dig through.</p>
+        <span class="tag">AI assistant</span>
+      </div>
+
+      <div class="fcard">
+        <div class="ficon">SS</div>
+        <h3>Scenario Simulator</h3>
+        <p>Model a port strike, a supplier dropout, or a demand spike before it happens, and see the downstream cost and service impact.</p>
+        <span class="tag">Planning</span>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="process" id="process">
+  <div class="wrap">
+    <div class="process-head">
+      <div class="eyebrow">How it works</div>
+      <h2>From raw data to a decision, in four steps.</h2>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="snum">01</div>
+        <h3>Ingest</h3>
+        <p>Connect ERP, TMS, WMS, EDI 856/860, and supplier email — Manifest normalizes it all into one live data model.</p>
+      </div>
+      <div class="step">
+        <div class="snum">02</div>
+        <h3>Predict</h3>
+        <p>Models trained on your historical performance forecast demand, lead times, and disruption probability per shipment.</p>
+      </div>
+      <div class="step">
+        <div class="snum">03</div>
+        <h3>Prescribe</h3>
+        <p>Manifest ranks issues by cost-to-business impact and recommends a specific action — reroute, expedite, reorder, or hold.</p>
+      </div>
+      <div class="step">
+        <div class="snum">04</div>
+        <h3>Act</h3>
+        <p>Approve with one click, or let policy-bound actions execute automatically and log the reasoning for audit.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="quote">
+  <div class="wrap">
+    <blockquote>"We stopped finding out about port delays from an angry customer email. Manifest told us <span>eight days</span> before it hit our floor."</blockquote>
+    <div class="quote-attr">
+      <span class="who">Priya Nathan</span>
+      <span>·</span>
+      <span>Director of Supply Chain, Kestrel Foods</span>
+    </div>
+  </div>
+</section>
+
+<section class="pricing" id="pricing">
+  <div class="wrap">
+    <div class="pricing-head">
+      <div class="eyebrow">Pricing</div>
+      <h2>Priced for the size of your chain, not your headcount.</h2>
+    </div>
+    <div class="plans">
+      <div class="plan">
+        <div class="pname">Starter</div>
+        <div class="price">$1,400 <small>/ month</small></div>
+        <div class="pdesc">For single-facility teams getting visibility online.</div>
+        <ul>
+          <li>Up to 3 data connections</li>
+          <li>Risk Radar + alerts</li>
+          <li>Weekly demand forecast</li>
+          <li>Email support</li>
+        </ul>
+        <a href="#" class="btn btn-ghost">Start free trial</a>
+      </div>
+      <div class="plan feat">
+        <div class="pname">Control Tower</div>
+        <div class="price">$4,200 <small>/ month</small></div>
+        <div class="pdesc">For multi-site operations that need one command view.</div>
+        <ul>
+          <li>Unlimited data connections</li>
+          <li>Full platform, all six panels</li>
+          <li>Daily forecast refresh</li>
+          <li>Scenario Simulator</li>
+          <li>Dedicated implementation lead</li>
+        </ul>
+        <a href="#" class="btn btn-amber">Book a demo</a>
+      </div>
+      <div class="plan">
+        <div class="pname">Enterprise</div>
+        <div class="price">Custom</div>
+        <div class="pdesc">For global networks with complex compliance needs.</div>
+        <ul>
+          <li>Everything in Control Tower</li>
+          <li>Custom model training</li>
+          <li>SSO, audit logs, SLA</li>
+          <li>On-prem / VPC deployment</li>
+        </ul>
+        <a href="#" class="btn btn-ghost">Talk to sales</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-band">
+  <div class="wrap">
+    <div class="eyebrow" style="justify-content:center;">Get started</div>
+    <h2 style="margin-top:14px;">Stop finding out about disruption from your customers.</h2>
+    <a href="#" class="btn btn-amber">Book a demo</a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <div class="logo"><span class="mark"></span>Manifest</div>
+        <p>AI control tower for supply chain teams. Ingest, predict, prescribe, act.</p>
+      </div>
+      <div class="foot-col">
+        <h4>Platform</h4>
+        <a href="#">Risk Radar</a>
+        <a href="#">Forecasting</a>
+        <a href="#">Inventory Autopilot</a>
+        <a href="#">Scenario Simulator</a>
+      </div>
+      <div class="foot-col">
+        <h4>Company</h4>
+        <a href="#">About</a>
+        <a href="#">Careers</a>
+        <a href="#">Security</a>
+      </div>
+      <div class="foot-col">
+        <h4>Resources</h4>
+        <a href="#">Docs</a>
+        <a href="#">Blog</a>
+        <a href="#">Status</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 Manifest Technologies Inc.</span>
+      <span>Privacy · Terms · SOC 2 Type II</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const data = [
+    {id:'PO-4471', route:'Shenzhen → Los Angeles', eta:'-3d', status:'late'},
+    {id:'PO-5502', route:'Rotterdam → Hamburg', eta:'On time', status:'ok'},
+    {id:'PO-3390', route:'Mumbai → Felixstowe', eta:'+2d risk', status:'risk'},
+    {id:'PO-6120', route:'Ningbo → Long Beach', eta:'On time', status:'ok'},
+    {id:'PO-2287', route:'Busan → Oakland', eta:'Port congestion', status:'risk'},
+    {id:'PO-7745', route:'Ho Chi Minh → Seattle', eta:'-1d', status:'late'},
+    {id:'PO-8810', route:'Antwerp → Chicago', eta:'On time', status:'ok'}
+  ];
+
+  const statusLabel = {ok:'On track', risk:'At risk', late:'Delayed'};
+  const board = document.getElementById('board-rows');
+
+  function renderRows(list){
+    board.innerHTML = '';
+    list.forEach((row, i) => {
+      const el = document.createElement('div');
+      el.className = 'board-row';
+      el.style.animationDelay = (i * 0.06) + 's';
+      el.innerHTML = `
+        <span class="id">${row.id}</span>
+        <span class="route">${row.route}</span>
+        <span class="status ${row.status}">${statusLabel[row.status]}</span>
+        <span class="eta">${row.eta}</span>
+      `;
+      board.appendChild(el);
+    });
+  }
+
+  let offset = 0;
+  function cycle(){
+    const visible = [];
+    for(let i=0;i<5;i++){
+      visible.push(data[(offset+i) % data.length]);
+    }
+    renderRows(visible);
+    offset = (offset + 1) % data.length;
+  }
+  cycle();
+  setInterval(cycle, 3200);
+</script>
+
+</body>
+</html>
